@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
             webView.loadUrl(url);
         }
 
-
         ImageView refresh = (ImageView) findViewById(R.id.refresh);
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
