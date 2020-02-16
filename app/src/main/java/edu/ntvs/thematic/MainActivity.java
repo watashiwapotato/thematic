@@ -29,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         webView = (WebView)findViewById(R.id.webview);
         webSettings = webView.getSettings();
 
-        url = getSharedPreferences("Url", MODE_PRIVATE).getString("url", "");
-        if (url == "") {
+        url = getSharedPreferences("Url", MODE_PRIVATE).getString("url", "http://");
+        if (url == "http://") {
             setUrl();
         } else {
             webSettings.setJavaScriptEnabled(true);
@@ -59,14 +59,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void setUrl() {
         final View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.edittext, null);
+        final EditText edit = (EditText) (view.findViewById(R.id.edit));
+        edit.setText(url);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("設定URL")
+        builder.setTitle("設定網址")
                 .setView(view)
                 .setPositiveButton("確定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText edit = (EditText) (view.findViewById(R.id.edit));
                         url = edit.getText().toString();
                         SharedPreferences pref = getSharedPreferences("Url", MODE_PRIVATE);
                         pref.edit()
