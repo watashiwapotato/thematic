@@ -29,14 +29,13 @@ public class MainActivity extends AppCompatActivity {
 
         webView = (WebView)findViewById(R.id.webview);
         webSettings = webView.getSettings();
-
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setLoadWithOverviewMode(true);
         url = getSharedPreferences("Url", MODE_PRIVATE).getString("url", "http://");
         if (url == "http://") {
             setUrl();
         } else {
-            webSettings.setJavaScriptEnabled(true);
-            webSettings.setUseWideViewPort(true);
-            webSettings.setLoadWithOverviewMode(true);
             webView.setWebViewClient(new WebViewClient());
             webView.loadUrl(url);
         }
