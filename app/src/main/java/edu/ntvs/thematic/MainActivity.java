@@ -3,10 +3,13 @@ package edu.ntvs.thematic;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -20,9 +23,9 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    public String url;
     WebView webView;
     WebSettings webSettings;
     public static String string = null;
@@ -31,19 +34,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
+        }
 
         webView = (WebView) findViewById(R.id.webview);
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
-        url = getSharedPreferences("Url", MODE_PRIVATE).getString("url", "http://");
-        if (url == "http://" || MainActivity.string != null) {
+        Global.url = getSharedPreferences("Url", MODE_PRIVATE).getString("url", "http://");
+        Log.d("url",Global.url + "");
+        if (Global.url == "http://" || MainActivity.string != null) {
             setUrl();
-            Log.d("a", "onCreate: ");
         } else {
             webView.setWebViewClient(new WebViewClient());
-            webView.loadUrl(url);
+            webView.loadUrl(Global.url);
         }
 
         ImageView refresh = (ImageView) findViewById(R.id.refresh);
@@ -69,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         if (MainActivity.string != null) {
             edit.setText(MainActivity.string);
         } else {
-            edit.setText(url);
+            edit.setText(Global.url);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -79,13 +85,13 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("確定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        url = edit.getText().toString();
-                        SharedPreferences pref = getSharedPreferences("Url", MODE_PRIVATE);
-                        pref.edit()
-                                .putString("url", url)
+                        Global.url = edit.getText().toString();
+                        Global.pref = getSharedPreferences("Url", MODE_PRIVATE);
+                        Global.pref.edit()
+                                .putString("url", Global.url)
                                 .commit();
                         webView.setWebViewClient(new WebViewClient());
-                        webView.loadUrl(url);
+                        webView.loadUrl(Global.url);
                     }
                 })
                 .setNegativeButton("掃描QR Code", new DialogInterface.OnClickListener() {

@@ -4,12 +4,15 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +36,6 @@ public class QRCode extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityCompat.requestPermissions(QRCode.this,new String[]{Manifest.permission.CAMERA},1);
         setContentView(R.layout.qrcode);
         surfaceView = (SurfaceView) findViewById(R.id.qrcode);
         barcodeDetector = new BarcodeDetector.Builder(this)
@@ -76,11 +78,21 @@ public class QRCode extends AppCompatActivity {
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 SparseArray<Barcode> qrcode = detections.getDetectedItems();
                 if (qrcode.size() != 0) {
-                    MainActivity.string = qrcode.valueAt(0).displayValue;
+                    Global.url = qrcode.valueAt(0).displayValue;
+                    Global.pref = getSharedPreferences("Url", MODE_PRIVATE);
+                    Global.pref.edit()
+                            .putString("url", Global.url)
+                            .commit();
                     Intent intent = new Intent(QRCode.this, MainActivity.class);
                     startActivity(intent);
                     finish();
-                    cameraSource.stop();
+                    Handler handler = new Handler(Looper.myLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            cameraSource.release();
+                        }
+                    });
                 }
 
             }
@@ -93,7 +105,13 @@ public class QRCode extends AppCompatActivity {
                 Intent intent = new Intent(QRCode.this, MainActivity.class);
                 startActivity(intent);
                 finish();
-//                cameraSource.stop();
+                Handler handler = new Handler(Looper.myLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cameraSource.release();
+                    }
+                });
             }
         });
 
